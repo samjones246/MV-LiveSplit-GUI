@@ -57,6 +57,7 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnOpenAutosplitter.TabIndex = 1;
             this.btnOpenAutosplitter.Text = "Open Autosplitter";
             this.btnOpenAutosplitter.UseVisualStyleBackColor = true;
+            this.btnOpenAutosplitter.Click += new System.EventHandler(this.btnOpenAutosplitter_Click);
             // 
             // btnNewAutosplitter
             // 

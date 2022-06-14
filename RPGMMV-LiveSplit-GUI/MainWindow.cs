@@ -15,25 +15,16 @@ using System.Text.Encodings.Web;
 
 namespace RPGMMV_LiveSplit_GUI
 {
-    public class PluginEntry
-    {
-        public string name { get; set; }
-        public bool status { get; set; }
-        public string description { get; set; }
-        public Dictionary<string, string> parameters { get; set; }
-        public PluginEntry(string name, bool status)
-        {
-            this.name = name;
-            this.status = status;
-            this.description = "";
-            this.parameters = new Dictionary<string, string>();
-        }
-    }
     public partial class MainWindow : Form
     {
         private string plugin;
         private const string PLUGIN_URL = "https://raw.githubusercontent.com/samjones246/rpgmmv-livesplit/master/js/plugins/LiveSplit.js";
+        private Autosplitter autosplitter;
+        private string autosplitterPath;
+        private string prefsPath;
+        private Dictionary<string, bool> splitPrefs;
         static readonly HttpClient httpClient = new HttpClient();
+        FolderBrowserDialog folderBrowser;
         public MainWindow()
         {
             InitializeComponent();
@@ -42,15 +33,14 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-
+            folderBrowser = new FolderBrowserDialog();
+            folderBrowser.SelectedPath = Properties.Settings.Default.LastGamePath;
+            folderBrowser.ShowNewFolderButton = false;
+            folderBrowser.Description = "Select the directory where the target game exe is located";
         }
 
         private void btnInstall_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
-            folderBrowser.SelectedPath = Properties.Settings.Default.LastGamePath;
-            folderBrowser.ShowNewFolderButton = false;
-            folderBrowser.Description = "Select the directory where the target game exe is located";
             DialogResult result = folderBrowser.ShowDialog();
             if (result == DialogResult.OK)
             {
@@ -148,12 +138,110 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void btnNewAutosplitter_Click(object sender, EventArgs e)
         {
-
+            DialogResult result = folderBrowser.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
+                Properties.Settings.Default.Save();
+                autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
+                if (File.Exists(autosplitterPath))
+                {
+                    result = MessageBox.Show("There is already an autosplitter present at the selected location. Are you sure you wish to overwrite it?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+                    if (result == DialogResult.Cancel)
+                    {
+                        return;
+                    }
+                }
+                prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
+                autosplitter = new Autosplitter();
+                autosplitter.splits = new List<SplitPoint>();
+                autosplitter.defaults = new Dictionary<string, bool>();
+                splitPrefs = new Dictionary<string, bool>();
+                string autosplitterjson = JsonSerializer.Serialize(autosplitter);
+                string prefsJson = JsonSerializer.Serialize(splitPrefs);
+                StreamWriter writer = new StreamWriter(autosplitterPath);
+                writer.Write(autosplitterjson);
+                writer.Close();
+                writer = new StreamWriter(prefsPath);
+                writer.Write(prefsJson);
+                writer.Close();
+                OpenAutosplitter();
+            }
         }
 
         private void btnAddSplitPoint_Click(object sender, EventArgs e)
         {
 
         }
+
+        private void btnOpenAutosplitter_Click(object sender, EventArgs e)
+        {
+            DialogResult result = folderBrowser.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
+                autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
+                prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
+                OpenAutosplitter();
+            }
+        }
+
+        private void OpenAutosplitter()
+        {
+            if (!File.Exists(autosplitterPath))
+            {
+                MessageBox.Show("Autosplitter.json not found in the selected directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            string autosplitterJson = File.ReadAllText(autosplitterPath);
+            autosplitter = JsonSerializer.Deserialize<Autosplitter>(autosplitterJson);
+            splitPrefs = new Dictionary<string, bool>();
+            if (File.Exists(prefsPath))
+            {
+                string prefsJson = File.ReadAllText(prefsPath);
+                splitPrefs = JsonSerializer.Deserialize<Dictionary<string, bool>>(prefsJson);
+            }
+            foreach (string splitName in autosplitter.defaults.Keys)
+            {
+                if (!splitPrefs.ContainsKey(splitName))
+                {
+                    splitPrefs.Add(splitName, autosplitter.defaults[splitName]);
+                }
+            }
+            PopulateSplitsList();
+        }
+
+        private void PopulateSplitsList()
+        {
+            lstSplitPoints.Items.Clear();
+            foreach (SplitPoint split in autosplitter.splits)
+            {
+                lstSplitPoints.Items.Add(split.name, splitPrefs[split.name]);
+            }
+        }
+    }
+    public class PluginEntry
+    {
+        public string name { get; set; }
+        public bool status { get; set; }
+        public string description { get; set; }
+        public Dictionary<string, string> parameters { get; set; }
+        public PluginEntry(string name, bool status)
+        {
+            this.name = name;
+            this.status = status;
+            this.description = "";
+            this.parameters = new Dictionary<string, string>();
+        }
+    }
+    public class Autosplitter
+    {
+        public List<SplitPoint> splits { get; set; }
+        public Dictionary<string, bool> defaults { get; set; }
+    }
+    public class SplitPoint
+    {
+        public string name { get; set; }
+        public List<Dictionary<string, object>> activators { get; set; }
     }
 }
