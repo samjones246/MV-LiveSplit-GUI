@@ -74,8 +74,6 @@ namespace RPGMMV_LiveSplit_GUI
 
             // Enable buttons
             btnAddSplitPoint.Enabled = true;
-            btnEditSplitPoint.Enabled = true;
-            btnDeleteSplitPoint.Enabled = true;
             btnSave.Enabled = true;
 
             // Save path and return
@@ -140,7 +138,7 @@ namespace RPGMMV_LiveSplit_GUI
             lstSplitPoints.Items.Clear();
             foreach (SplitPoint split in autosplitter.splits)
             {
-                lstSplitPoints.Items.Add(split.name, splitPrefs[split.name]);
+                lstSplitPoints.Items.Add(split, splitPrefs[split.name]);
             }
         }
 
@@ -222,7 +220,10 @@ namespace RPGMMV_LiveSplit_GUI
             try
             {
                 plugin = await httpClient.GetStringAsync(PLUGIN_URL);
-                UpdatePluginStatus();
+                if (open)
+                {
+                    UpdatePluginStatus();
+                }
             }
             catch(HttpRequestException ex)
             {
@@ -237,7 +238,32 @@ namespace RPGMMV_LiveSplit_GUI
             Console.WriteLine(ex.StackTrace);
         }
 
-        // -- OnClick Handlers --
+        private void AddSplitPoint()
+        {
+            SplitPointEditor editor = new SplitPointEditor();
+            DialogResult result = editor.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                autosplitter.splits.Add(editor.SplitPoint);
+                autosplitter.defaults[editor.SplitPoint.name] = editor.DefaultEnabled;
+                lstSplitPoints.Items.Add(editor.SplitPoint.name, editor.DefaultEnabled);
+            }
+        }
+
+        private void EditSplitPoint()
+        {
+            SplitPointEditor editor = new SplitPointEditor();
+            SplitPoint target = (SplitPoint)lstSplitPoints.SelectedItem;
+            editor.SplitPoint = new SplitPoint();
+            editor.SplitPoint.CopyFrom(target);
+            DialogResult result = editor.ShowDialog();
+            if (result == DialogResult.OK && editor.Changed)
+            {
+                target.CopyFrom(editor.SplitPoint);
+            }
+        }
+
+        // -- Event Handlers --
 
         private void btnInstall_Click(object sender, EventArgs e)
         {
@@ -253,12 +279,12 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void btnAddSplitPoint_Click(object sender, EventArgs e)
         {
-
+            AddSplitPoint();
         }
 
         private void btnEditSplitPoint_Click(object sender, EventArgs e)
         {
-
+            EditSplitPoint();
         }
 
         private void btnDeleteSplitPoint_Click(object sender, EventArgs e)
@@ -306,29 +332,17 @@ namespace RPGMMV_LiveSplit_GUI
                 ShowError(ex);
             }
         }
-    }
-    public class PluginEntry
-    {
-        public string name { get; set; }
-        public bool status { get; set; }
-        public string description { get; set; }
-        public Dictionary<string, string> parameters { get; set; }
-        public PluginEntry(string name, bool status)
+
+        private void lstSplitPoints_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            this.name = name;
-            this.status = status;
-            this.description = "";
-            this.parameters = new Dictionary<string, string>();
+            SplitPoint splitPoint = (SplitPoint)lstSplitPoints.Items[e.Index];
+            splitPrefs[splitPoint.name] = e.NewValue == CheckState.Checked;
         }
-    }
-    public class Autosplitter
-    {
-        public List<SplitPoint> splits { get; set; }
-        public Dictionary<string, bool> defaults { get; set; }
-    }
-    public class SplitPoint
-    {
-        public string name { get; set; }
-        public List<Dictionary<string, object>> activators { get; set; }
+
+        private void lstSplitPoints_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnEditSplitPoint.Enabled = lstSplitPoints.SelectedIndex != -1;
+            btnDeleteSplitPoint.Enabled = lstSplitPoints.SelectedIndex != -1;
+        }
     }
 }

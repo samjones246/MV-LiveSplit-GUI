@@ -57,6 +57,8 @@ namespace RPGMMV_LiveSplit_GUI
             this.lstSplitPoints.Name = "lstSplitPoints";
             this.lstSplitPoints.Size = new System.Drawing.Size(278, 378);
             this.lstSplitPoints.TabIndex = 3;
+            this.lstSplitPoints.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstSplitPoints_ItemCheck);
+            this.lstSplitPoints.SelectedIndexChanged += new System.EventHandler(this.lstSplitPoints_SelectedIndexChanged);
             // 
             // btnAddSplitPoint
             // 

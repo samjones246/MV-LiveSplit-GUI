@@ -88,7 +88,7 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnOk.TabIndex = 5;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
-            this.btnOk.Click += new System.EventHandler(this.button1_Click);
+            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
             // 
             // btnCancel
             // 
@@ -98,6 +98,7 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnCancel.TabIndex = 6;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // SplitPointEditor
             // 
@@ -113,6 +114,7 @@ namespace RPGMMV_LiveSplit_GUI
             this.Controls.Add(this.panel1);
             this.Name = "SplitPointEditor";
             this.Text = "Edit Split Point";
+            this.Load += new System.EventHandler(this.SplitPointEditor_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
