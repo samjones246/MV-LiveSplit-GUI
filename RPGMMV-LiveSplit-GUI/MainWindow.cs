@@ -17,14 +17,19 @@ namespace RPGMMV_LiveSplit_GUI
 {
     public partial class MainWindow : Form
     {
-        private string plugin;
-        private const string PLUGIN_URL = "https://raw.githubusercontent.com/samjones246/rpgmmv-livesplit/master/js/plugins/LiveSplit.js";
-        private Autosplitter autosplitter;
-        private string autosplitterPath;
-        private string prefsPath;
-        private Dictionary<string, bool> splitPrefs;
         static readonly HttpClient httpClient = new HttpClient();
-        FolderBrowserDialog folderBrowser;
+        private FolderBrowserDialog folderBrowser;
+
+        private string plugin = null;
+        private const string PLUGIN_URL = "https://raw.githubusercontent.com/samjones246/rpgmmv-livesplit/master/js/plugins/LiveSplit.js";
+
+        private Autosplitter autosplitter;
+        private Dictionary<string, bool> splitPrefs;
+        private List<PluginEntry> pluginsList;
+
+        private bool changed = false;
+        private bool open = false;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -39,176 +44,95 @@ namespace RPGMMV_LiveSplit_GUI
             folderBrowser.Description = "Select the directory where the target game exe is located";
         }
 
-        private void btnInstall_Click(object sender, EventArgs e)
+        private bool OpenGame()
         {
+            // Get the game path from the user
             DialogResult result = folderBrowser.ShowDialog();
-            if (result == DialogResult.OK)
+            if (result != DialogResult.OK)
             {
-                string targetDir = folderBrowser.SelectedPath;
-                Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
-                Properties.Settings.Default.Save();
-                string pluginsDir = targetDir + @"\www\js\plugins";
-                string pluginsFile = targetDir + @"\www\js\plugins.js";
-                // Verify that this is a valid game directory
-                if (!Directory.Exists(pluginsDir) || !File.Exists(pluginsFile))
+                return false;
+            }
+
+            string listPath = folderBrowser.SelectedPath + @"\www\js\plugins.js";
+            string pluginsDirPath = folderBrowser.SelectedPath + @"\www\js\plugins";
+            string pluginPath = pluginsDirPath + @"\LiveSplit.js";
+            string autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
+            string prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
+            // Check that the game path is valid
+            if (!Directory.Exists(pluginsDirPath) || !File.Exists(listPath))
+            {
+                throw new Exception("Not a valid game folder");
+            }
+
+            open = true;
+            // Get plugin status
+            LoadPluginsList(listPath);
+            UpdatePluginStatus();
+
+            // Open or create Autosplitter
+            LoadAutosplitter(autosplitterPath, prefsPath);
+
+            // Enable buttons
+            btnAddSplitPoint.Enabled = true;
+            btnEditSplitPoint.Enabled = true;
+            btnDeleteSplitPoint.Enabled = true;
+            btnSave.Enabled = true;
+
+            // Save path and return
+            Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
+            Properties.Settings.Default.Save();
+            changed = false;
+            return true;
+        }
+
+        private void UpdatePluginStatus()
+        {
+            string pluginPath = folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit.js";
+            bool installed = File.Exists(pluginPath)
+                && pluginsList.Exists(entry => entry.name == "LiveSplit");
+            bool updated = installed && (plugin == null || File.ReadAllText(pluginPath) == plugin);
+            if (installed)
+            {
+                if (updated)
                 {
-                    MessageBox.Show("Invalid game folder specified", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    lblStatus.Text = "Plugin: Installed";
+                    lblStatus.ForeColor = Color.Green;
                 }
                 else
                 {
-                    StreamWriter writer = new StreamWriter(pluginsDir + @"\LiveSplit.js");
-                    bool abort = false;
-                    // Write LiveSplit.js
-                    try
-                    {
-                        writer.Write(plugin);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Failed to write LiveSplit.js", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        abort = true;
-                    }
-                    finally
-                    {
-                        writer.Close();
-                    }
-                    if (abort) return;
-                    // Add entry to plugins.js if required
-                    string pluginsContent = File.ReadAllText(pluginsFile, Encoding.UTF8);
-                    int arrayStart = pluginsContent.IndexOf('[');
-                    int arrayEnd = pluginsContent.IndexOf(';');
-                    pluginsContent = pluginsContent.Substring(arrayStart, arrayEnd - arrayStart);
-                    List<PluginEntry> entries = null;
-                    try
-                    {
-                        entries = JsonSerializer.Deserialize<List<PluginEntry>>(pluginsContent);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Failed to parse plugins.js", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
-                    }
-                    if (entries == null) return;
-                    if (!entries.Exists(elem => elem.name == "LiveSplit"))
-                    {
-                        entries.Add(new PluginEntry("LiveSplit", true));
-                        string outputText = "// Generated by RPG Maker.\n// Do not edit this file directly.\nvar $plugins =\n";
-                        JsonSerializerOptions options = new JsonSerializerOptions
-                        {
-                            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                            WriteIndented = true
-                        };
-                        outputText += JsonSerializer.Serialize(entries, options) + ";";
-                        Console.WriteLine(outputText);
-                        writer = new StreamWriter(pluginsFile, false, Encoding.UTF8);
-                        try
-                        {
-                            writer.Write(outputText);
-                        }
-                        catch
-                        {
-                            MessageBox.Show("Failed to add entry to plugins.js", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            abort = true;
-                        }
-                        finally
-                        {
-                            writer.Close();
-                        }
-                        if (abort) return;
-                    }
-                    MessageBox.Show("Plugin installed successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    lblStatus.Text = "Plugin: Outdated";
+                    lblStatus.ForeColor = Color.Orange;
                 }
             }
+            else
+            {
+                lblStatus.Text = "Plugin: Missing";
+                lblStatus.ForeColor = Color.Red;
+            }
+            btnInstall.Enabled = plugin != null && (!installed || !updated);
         }
 
-        private async void RetrievePlugin()
+        private void LoadPluginsList(string path)
         {
-            try
-            {
-                plugin = await httpClient.GetStringAsync(PLUGIN_URL);
-                btnInstall.Enabled = true;
-            }
-            catch(HttpRequestException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
+            string pluginsContent = File.ReadAllText(path, Encoding.UTF8);
+            int arrayStart = pluginsContent.IndexOf('[');
+            int arrayEnd = pluginsContent.IndexOf(';');
+            pluginsContent = pluginsContent.Substring(arrayStart, arrayEnd - arrayStart);
+            pluginsList = JsonSerializer.Deserialize<List<PluginEntry>>(pluginsContent);
         }
 
-        private void btnNewAutosplitter_Click(object sender, EventArgs e)
+        private void WritePluginsList(string path)
         {
-            DialogResult result = folderBrowser.ShowDialog();
-            if (result == DialogResult.OK)
+            string outputText = "// Generated by RPG Maker.\n// Do not edit this file directly.\nvar $plugins =\n";
+            JsonSerializerOptions options = new JsonSerializerOptions
             {
-                Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
-                Properties.Settings.Default.Save();
-                autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
-                if (File.Exists(autosplitterPath))
-                {
-                    result = MessageBox.Show("There is already an autosplitter present at the selected location. Are you sure you wish to overwrite it?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
-                    if (result == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                }
-                prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
-                autosplitter = new Autosplitter();
-                autosplitter.splits = new List<SplitPoint>();
-                autosplitter.defaults = new Dictionary<string, bool>();
-                splitPrefs = new Dictionary<string, bool>();
-                string autosplitterjson = JsonSerializer.Serialize(autosplitter);
-                string prefsJson = JsonSerializer.Serialize(splitPrefs);
-                StreamWriter writer = new StreamWriter(autosplitterPath);
-                writer.Write(autosplitterjson);
-                writer.Close();
-                writer = new StreamWriter(prefsPath);
-                writer.Write(prefsJson);
-                writer.Close();
-                OpenAutosplitter();
-            }
-        }
-
-        private void btnAddSplitPoint_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnOpenAutosplitter_Click(object sender, EventArgs e)
-        {
-            DialogResult result = folderBrowser.ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
-                autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
-                prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
-                OpenAutosplitter();
-            }
-        }
-
-        private void OpenAutosplitter()
-        {
-            if (!File.Exists(autosplitterPath))
-            {
-                MessageBox.Show("Autosplitter.json not found in the selected directory", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            string autosplitterJson = File.ReadAllText(autosplitterPath);
-            autosplitter = JsonSerializer.Deserialize<Autosplitter>(autosplitterJson);
-            splitPrefs = new Dictionary<string, bool>();
-            if (File.Exists(prefsPath))
-            {
-                string prefsJson = File.ReadAllText(prefsPath);
-                splitPrefs = JsonSerializer.Deserialize<Dictionary<string, bool>>(prefsJson);
-            }
-            foreach (string splitName in autosplitter.defaults.Keys)
-            {
-                if (!splitPrefs.ContainsKey(splitName))
-                {
-                    splitPrefs.Add(splitName, autosplitter.defaults[splitName]);
-                }
-            }
-            PopulateSplitsList();
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            outputText += JsonSerializer.Serialize(pluginsList, options) + ";";
+            StreamWriter writer = new StreamWriter(path, false, Encoding.UTF8);
+            writer.Write(outputText);
+            writer.Close();
         }
 
         private void PopulateSplitsList()
@@ -217,6 +141,169 @@ namespace RPGMMV_LiveSplit_GUI
             foreach (SplitPoint split in autosplitter.splits)
             {
                 lstSplitPoints.Items.Add(split.name, splitPrefs[split.name]);
+            }
+        }
+
+        private void LoadAutosplitter(string path, string prefsPath)
+        {
+            // Load/Create autosplitter
+            if (File.Exists(path))
+            {
+                string autosplitterText = File.ReadAllText(path);
+                autosplitter = JsonSerializer.Deserialize<Autosplitter>(autosplitterText);
+            }
+            else
+            {
+                autosplitter = new Autosplitter();
+                autosplitter.splits = new List<SplitPoint>();
+                autosplitter.defaults = new Dictionary<string, bool>();
+            }
+
+            // Load/Create settings
+            if (File.Exists(prefsPath))
+            {
+                string prefsText = File.ReadAllText(prefsPath);
+                splitPrefs = JsonSerializer.Deserialize<Dictionary<string, bool>>(prefsText);
+
+                // Check for missing keys in settings
+                foreach (string key in autosplitter.defaults.Keys)
+                {
+                    if (!splitPrefs.ContainsKey(key))
+                    {
+                        splitPrefs.Add(key, autosplitter.defaults[key]);
+                    }
+                }
+            }
+            else
+            {
+                splitPrefs = autosplitter.defaults;
+            }
+            PopulateSplitsList();
+        }
+
+        private void WriteAutosplitter(string path, string prefsPath)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            // Write autosplitter
+            string outputText = JsonSerializer.Serialize(autosplitter, options);
+            StreamWriter writer = new StreamWriter(path);
+            writer.Write(outputText);
+            writer.Close();
+
+            // Write settings
+            outputText = JsonSerializer.Serialize(splitPrefs, options);
+            writer = new StreamWriter(prefsPath);
+            writer.Write(outputText);
+            writer.Close();
+            changed = false;
+        }
+
+        private void InstallPlugin(string path)
+        {
+            // Write LiveSplit.js
+            StreamWriter writer = new StreamWriter(path);
+            writer.Write(plugin);
+            writer.Close();
+
+            // Add entry to plugins.js if required
+            if (!pluginsList.Exists(entry => entry.name == "LiveSplit"))
+            {
+                pluginsList.Add(new PluginEntry("LiveSplit", true));
+                WritePluginsList(folderBrowser.SelectedPath + @"\www\js\plugins.js");
+            }    
+        }
+
+        private async void RetrievePlugin()
+        {
+            try
+            {
+                plugin = await httpClient.GetStringAsync(PLUGIN_URL);
+                UpdatePluginStatus();
+            }
+            catch(HttpRequestException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        private void ShowError(Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Console.WriteLine(ex.StackTrace);
+        }
+
+        // -- OnClick Handlers --
+
+        private void btnInstall_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                InstallPlugin(folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit.js");
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex);
+            }
+        }
+
+        private void btnAddSplitPoint_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnEditSplitPoint_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDeleteSplitPoint_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnOpenGame_Click(object sender, EventArgs e)
+        {
+            DialogResult result = DialogResult.No;
+            if (changed)
+            {
+                result = MessageBox.Show("Save changes before opening another game?", "Confirm", 
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+            }
+            try
+            {
+                if (result == DialogResult.Yes)
+                {
+                    string path = folderBrowser.SelectedPath + @"\Autosplitter.json";
+                    string prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
+                    WriteAutosplitter(path, prefsPath);
+                }
+                if (result != DialogResult.Cancel)
+                {
+                    OpenGame();
+                }
+            }
+            catch(Exception ex)
+            {
+                ShowError(ex);
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string path = folderBrowser.SelectedPath + @"\Autosplitter.json";
+                string prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
+                WriteAutosplitter(path, prefsPath);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex);
             }
         }
     }
