@@ -20,8 +20,11 @@ namespace RPGMMV_LiveSplit_GUI
         static readonly HttpClient httpClient = new HttpClient();
         private FolderBrowserDialog folderBrowser;
 
-        private string plugin = null;
+        private bool omori = false;
+        private byte[] plugin = null;
+        private byte[] plugin_omori = null;
         private const string PLUGIN_URL = "https://raw.githubusercontent.com/samjones246/rpgmmv-livesplit/master/js/plugins/LiveSplit.js";
+        private const string PLUGIN_URL_OMORI = "https://raw.githubusercontent.com/samjones246/rpgmmv-livesplit/master/js/plugins/LiveSplit.OMORI";
 
         private Autosplitter autosplitter;
         private Dictionary<string, bool> splitPrefs;
@@ -55,7 +58,6 @@ namespace RPGMMV_LiveSplit_GUI
 
             string listPath = folderBrowser.SelectedPath + @"\www\js\plugins.js";
             string pluginsDirPath = folderBrowser.SelectedPath + @"\www\js\plugins";
-            string pluginPath = pluginsDirPath + @"\LiveSplit.js";
             string autosplitterPath = folderBrowser.SelectedPath + @"\Autosplitter.json";
             string prefsPath = folderBrowser.SelectedPath + @"\AutosplitterSettings.json";
             // Check that the game path is valid
@@ -64,6 +66,7 @@ namespace RPGMMV_LiveSplit_GUI
                 throw new Exception("Not a valid game folder");
             }
 
+            omori = File.Exists(pluginsDirPath + @"\Omori BASE.OMORI");
             open = true;
             // Get plugin status
             LoadPluginsList(listPath);
@@ -85,10 +88,10 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void UpdatePluginStatus()
         {
-            string pluginPath = folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit.js";
+            string pluginPath = folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit." + (omori ? "OMORI" : "js");
             bool installed = File.Exists(pluginPath)
                 && pluginsList.Exists(entry => entry.name == "LiveSplit");
-            bool updated = installed && (plugin == null || File.ReadAllText(pluginPath) == plugin);
+            bool updated = installed && (plugin == null || Enumerable.SequenceEqual(File.ReadAllBytes(pluginPath), omori ? plugin_omori : plugin));
             if (installed)
             {
                 if (updated)
@@ -205,9 +208,7 @@ namespace RPGMMV_LiveSplit_GUI
         private void InstallPlugin(string path)
         {
             // Write LiveSplit.js
-            StreamWriter writer = new StreamWriter(path);
-            writer.Write(plugin);
-            writer.Close();
+            File.WriteAllBytes(path, omori ? plugin_omori : plugin);
 
             // Add entry to plugins.js if required
             if (!pluginsList.Exists(entry => entry.name == "LiveSplit"))
@@ -221,7 +222,8 @@ namespace RPGMMV_LiveSplit_GUI
         {
             try
             {
-                plugin = await httpClient.GetStringAsync(PLUGIN_URL);
+                plugin = await httpClient.GetByteArrayAsync(PLUGIN_URL);
+                plugin_omori = await httpClient.GetByteArrayAsync(PLUGIN_URL_OMORI);
                 if (open)
                 {
                     UpdatePluginStatus();
@@ -274,7 +276,9 @@ namespace RPGMMV_LiveSplit_GUI
         {
             try
             {
-                InstallPlugin(folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit.js");
+                InstallPlugin(folderBrowser.SelectedPath + @"\www\js\plugins\LiveSplit." + (omori ? "OMORI" : "js"));
+                MessageBox.Show("Plugin installed successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                UpdatePluginStatus();
             }
             catch (Exception ex)
             {
