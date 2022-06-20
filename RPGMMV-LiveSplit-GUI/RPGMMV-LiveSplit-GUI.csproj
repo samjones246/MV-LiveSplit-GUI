@@ -76,7 +76,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow.cs" />
+    <Compile Include="Activators\ActivatorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Activators\ActivatorPanel.Designer.cs">
+      <DependentUpon>ActivatorPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Activators\EventActivator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Activators\EventActivator.Designer.cs">
+      <DependentUpon>EventActivator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
@@ -89,6 +103,39 @@
       <DependentUpon>SplitPointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Structures.cs" />
+    <Compile Include="Activators\SwitchActivator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Activators\SwitchActivator.Designer.cs">
+      <DependentUpon>SwitchActivator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Activators\TransitionActivator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Activators\TransitionActivator.Designer.cs">
+      <DependentUpon>TransitionActivator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Activators\VariableActivator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Activators\VariableActivator.Designer.cs">
+      <DependentUpon>VariableActivator.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Activators\ActivatorPanel.resx">
+      <DependentUpon>ActivatorPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activators\EventActivator.resx">
+      <DependentUpon>EventActivator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activators\SwitchActivator.resx">
+      <DependentUpon>SwitchActivator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activators\TransitionActivator.resx">
+      <DependentUpon>TransitionActivator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activators\VariableActivator.resx">
+      <DependentUpon>VariableActivator.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>

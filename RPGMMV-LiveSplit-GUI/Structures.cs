@@ -28,7 +28,7 @@ namespace RPGMMV_LiveSplit_GUI
     public class SplitPoint
     {
         public string name { get; set; }
-        public List<Dictionary<string, object>> activators { get; set; }
+        public List<Activator> activators { get; set; }
 
         public override string ToString()
         {
@@ -38,16 +38,31 @@ namespace RPGMMV_LiveSplit_GUI
         public void CopyFrom(SplitPoint blueprint)
         {
             name = blueprint.name;
-            activators = new List<Dictionary<string, object>>();
-            foreach (Dictionary<string, object> bpActivator in blueprint.activators)
+            activators = new List<Activator>();
+            foreach (Activator bpActivator in blueprint.activators)
             {
-                Dictionary<string, object> activator = new Dictionary<string, object>();
-                activators.Add(activator);
-                foreach (string key in bpActivator.Keys)
-                {
-                    activator.Add(key, bpActivator[key]);
-                }
+                activators.Add((Activator)bpActivator.Clone());
             }
+        }
+    }
+
+    public class Activator
+    {
+        public string Type { get; set; }
+        public int? Map { get; set; }
+        public int? From { get; set; }
+        public int? To { get; set; }
+        public int? Event { get; set; }
+        public int? Page { get; set; }
+        public int? Line { get; set; }
+        public int? Id { get; set; }
+        public int? Value { get; set; }
+        public bool? Any { get; set; }
+        public bool? Common { get; set; }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 }

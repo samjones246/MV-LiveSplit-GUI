@@ -29,22 +29,28 @@ namespace RPGMMV_LiveSplit_GUI
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.activatorsPanel = new System.Windows.Forms.Panel();
             this.lblName = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.lblActivators = new System.Windows.Forms.Label();
             this.btnAddActivator = new System.Windows.Forms.Button();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.chkDefault = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // panel1
+            // activatorsPanel
             // 
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(12, 72);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(262, 100);
-            this.panel1.TabIndex = 0;
+            this.activatorsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.activatorsPanel.AutoScroll = true;
+            this.activatorsPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.activatorsPanel.Location = new System.Drawing.Point(12, 72);
+            this.activatorsPanel.Name = "activatorsPanel";
+            this.activatorsPanel.Padding = new System.Windows.Forms.Padding(10);
+            this.activatorsPanel.Size = new System.Drawing.Size(420, 221);
+            this.activatorsPanel.TabIndex = 0;
             // 
             // lblName
             // 
@@ -79,10 +85,12 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnAddActivator.TabIndex = 4;
             this.btnAddActivator.Text = "Add";
             this.btnAddActivator.UseVisualStyleBackColor = true;
+            this.btnAddActivator.Click += new System.EventHandler(this.btnAddActivator_Click);
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(199, 178);
+            this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOk.Location = new System.Drawing.Point(359, 299);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 27);
             this.btnOk.TabIndex = 5;
@@ -92,7 +100,8 @@ namespace RPGMMV_LiveSplit_GUI
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(118, 178);
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(278, 299);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 27);
             this.btnCancel.TabIndex = 6;
@@ -100,18 +109,31 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // chkDefault
+            // 
+            this.chkDefault.AutoSize = true;
+            this.chkDefault.Location = new System.Drawing.Point(359, 8);
+            this.chkDefault.Name = "chkDefault";
+            this.chkDefault.Size = new System.Drawing.Size(75, 21);
+            this.chkDefault.TabIndex = 7;
+            this.chkDefault.Text = "Default";
+            this.chkDefault.UseVisualStyleBackColor = true;
+            this.chkDefault.CheckedChanged += new System.EventHandler(this.chkDefault_CheckedChanged);
+            // 
             // SplitPointEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(286, 213);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(446, 334);
+            this.Controls.Add(this.chkDefault);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.btnAddActivator);
             this.Controls.Add(this.lblActivators);
             this.Controls.Add(this.txtName);
             this.Controls.Add(this.lblName);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.activatorsPanel);
             this.Name = "SplitPointEditor";
             this.Text = "Edit Split Point";
             this.Load += new System.EventHandler(this.SplitPointEditor_Load);
@@ -122,12 +144,13 @@ namespace RPGMMV_LiveSplit_GUI
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel activatorsPanel;
         private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.Label lblActivators;
         private System.Windows.Forms.Button btnAddActivator;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.CheckBox chkDefault;
     }
 }

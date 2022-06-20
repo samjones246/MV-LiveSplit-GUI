@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.Json;
 
 namespace RPGMMV_LiveSplit_GUI
 {
@@ -15,6 +16,8 @@ namespace RPGMMV_LiveSplit_GUI
         public SplitPoint SplitPoint { get; set; }
         public bool Changed { get; set; }
         public bool DefaultEnabled { get; set; }
+        public List<ActivatorPanel> activatorPanels;
+
         public SplitPointEditor()
         {
             InitializeComponent();
@@ -24,7 +27,7 @@ namespace RPGMMV_LiveSplit_GUI
             if (SplitPoint == null) {
                 SplitPoint = new SplitPoint();
                 SplitPoint.name = "New Split";
-                SplitPoint.activators = new List<Dictionary<string, object>>();
+                SplitPoint.activators = new List<Activator>();
             }
             UpdateFields();
         }
@@ -32,10 +35,46 @@ namespace RPGMMV_LiveSplit_GUI
         private void UpdateFields()
         {
             txtName.Text = SplitPoint.name;
+            chkDefault.Checked = DefaultEnabled;
+            activatorPanels = new List<ActivatorPanel>();
+            foreach(Activator activator in SplitPoint.activators)
+            {
+                CreateActivatorPanel(activator);
+            }
+        }
+
+        private List<Activator> GetActivators()
+        {
+            List<Activator> activators = new List<Activator>();
+            foreach (Control panel in activatorsPanel.Controls)
+            {
+                activators.Add(((ActivatorPanel)panel).GetData());
+            }
+            return activators;
+        }
+
+        private void CreateActivatorPanel(Activator activator = null)
+        {
+            if (activator == null)
+            {
+                activator = new Activator();
+                activator.Type = "transition";
+                activator.From = 1;
+                activator.To = 2;
+            }
+            ActivatorPanel panel = new ActivatorPanel();
+            int offset = 5;
+            int y = (offset + panel.Height) * activatorPanels.Count + offset;
+            panel.Location = new Point(offset, y);
+            panel.SetData(activator);
+            activatorPanels.Add(panel);
+            activatorsPanel.Controls.Add(panel);
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            SplitPoint.name = txtName.Text;
+            SplitPoint.activators = GetActivators();
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -45,15 +84,15 @@ namespace RPGMMV_LiveSplit_GUI
             DialogResult = DialogResult.Cancel;
             Close();
         }
-    }
 
-    public class ActivatorPanel : Panel
-    {
-        public Activator Model { get; set; }
-
-        public ActivatorPanel() : base()
+        private void chkDefault_CheckedChanged(object sender, EventArgs e)
         {
-           
+            DefaultEnabled = chkDefault.Checked;
+        }
+
+        private void btnAddActivator_Click(object sender, EventArgs e)
+        {
+            CreateActivatorPanel();
         }
     }
 }

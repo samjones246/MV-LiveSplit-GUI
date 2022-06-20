@@ -114,7 +114,7 @@ namespace RPGMMV_LiveSplit_GUI
         {
             string pluginsContent = File.ReadAllText(path, Encoding.UTF8);
             int arrayStart = pluginsContent.IndexOf('[');
-            int arrayEnd = pluginsContent.IndexOf(';');
+            int arrayEnd = pluginsContent.LastIndexOf(';');
             pluginsContent = pluginsContent.Substring(arrayStart, arrayEnd - arrayStart);
             pluginsList = JsonSerializer.Deserialize<List<PluginEntry>>(pluginsContent);
         }
@@ -148,7 +148,9 @@ namespace RPGMMV_LiveSplit_GUI
             if (File.Exists(path))
             {
                 string autosplitterText = File.ReadAllText(path);
-                autosplitter = JsonSerializer.Deserialize<Autosplitter>(autosplitterText);
+                var options = new JsonSerializerOptions();
+                options.PropertyNameCaseInsensitive = true;
+                autosplitter = JsonSerializer.Deserialize<Autosplitter>(autosplitterText, options);
             }
             else
             {
@@ -246,7 +248,7 @@ namespace RPGMMV_LiveSplit_GUI
             {
                 autosplitter.splits.Add(editor.SplitPoint);
                 autosplitter.defaults[editor.SplitPoint.name] = editor.DefaultEnabled;
-                lstSplitPoints.Items.Add(editor.SplitPoint.name, editor.DefaultEnabled);
+                lstSplitPoints.Items.Add(editor.SplitPoint, editor.DefaultEnabled);
             }
         }
 
@@ -257,9 +259,11 @@ namespace RPGMMV_LiveSplit_GUI
             editor.SplitPoint = new SplitPoint();
             editor.SplitPoint.CopyFrom(target);
             DialogResult result = editor.ShowDialog();
-            if (result == DialogResult.OK && editor.Changed)
+            if (result == DialogResult.OK)
             {
                 target.CopyFrom(editor.SplitPoint);
+                autosplitter.defaults[editor.SplitPoint.name] = editor.DefaultEnabled;
+                lstSplitPoints.Refresh();
             }
         }
 
