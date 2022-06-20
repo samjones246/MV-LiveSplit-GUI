@@ -258,6 +258,7 @@ namespace RPGMMV_LiveSplit_GUI
             SplitPoint target = (SplitPoint)lstSplitPoints.SelectedItem;
             editor.SplitPoint = new SplitPoint();
             editor.SplitPoint.CopyFrom(target);
+            editor.DefaultEnabled = autosplitter.defaults[editor.SplitPoint.name];
             DialogResult result = editor.ShowDialog();
             if (result == DialogResult.OK)
             {
