@@ -30,7 +30,15 @@ namespace RPGMMV_LiveSplit_GUI
         private Dictionary<string, bool> splitPrefs;
         private List<PluginEntry> pluginsList;
 
-        private bool changed = false;
+        private bool _changed;
+        private bool Changed {
+            get => _changed;
+            set
+            {
+                _changed = value;
+                btnSave.Enabled = value;
+            }
+        }
         private bool open = false;
         
         public MainWindow()
@@ -77,12 +85,11 @@ namespace RPGMMV_LiveSplit_GUI
 
             // Enable buttons
             btnAddSplitPoint.Enabled = true;
-            btnSave.Enabled = true;
 
             // Save path and return
             Properties.Settings.Default.LastGamePath = folderBrowser.SelectedPath;
             Properties.Settings.Default.Save();
-            changed = false;
+            Changed = false;
             return true;
         }
 
@@ -160,6 +167,7 @@ namespace RPGMMV_LiveSplit_GUI
                 autosplitter = new Autosplitter();
                 autosplitter.splits = new List<SplitPoint>();
                 autosplitter.defaults = new Dictionary<string, bool>();
+                Changed = true;
             }
 
             // Load/Create settings
@@ -203,7 +211,7 @@ namespace RPGMMV_LiveSplit_GUI
             writer = new StreamWriter(prefsPath);
             writer.Write(outputText);
             writer.Close();
-            changed = false;
+            Changed = false;
         }
 
         private void InstallPlugin(string path)
@@ -252,6 +260,7 @@ namespace RPGMMV_LiveSplit_GUI
                 autosplitter.splits.Add(editor.SplitPoint);
                 autosplitter.defaults[editor.SplitPoint.name] = editor.DefaultEnabled;
                 lstSplitPoints.Items.Add(editor.SplitPoint, editor.DefaultEnabled);
+                Changed = true;
             }
         }
 
@@ -268,6 +277,7 @@ namespace RPGMMV_LiveSplit_GUI
                 target.CopyFrom(editor.SplitPoint);
                 autosplitter.defaults[editor.SplitPoint.name] = editor.DefaultEnabled;
                 lstSplitPoints.Refresh();
+                Changed = true;
             }
         }
 
@@ -305,7 +315,7 @@ namespace RPGMMV_LiveSplit_GUI
         private void btnOpenGame_Click(object sender, EventArgs e)
         {
             DialogResult result = DialogResult.No;
-            if (changed)
+            if (Changed)
             {
                 result = MessageBox.Show("Save changes before opening another game?", "Confirm", 
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
@@ -347,6 +357,7 @@ namespace RPGMMV_LiveSplit_GUI
         {
             SplitPoint splitPoint = (SplitPoint)lstSplitPoints.Items[e.Index];
             splitPrefs[splitPoint.name] = e.NewValue == CheckState.Checked;
+            Changed = true;
         }
 
         private void lstSplitPoints_SelectedIndexChanged(object sender, EventArgs e)

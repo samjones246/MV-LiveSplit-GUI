@@ -14,7 +14,6 @@ namespace RPGMMV_LiveSplit_GUI
     public partial class SplitPointEditor : Form
     {
         public SplitPoint SplitPoint { get; set; }
-        public bool Changed { get; set; }
         public bool DefaultEnabled { get; set; }
         public List<ActivatorPanel> activatorPanels;
 
