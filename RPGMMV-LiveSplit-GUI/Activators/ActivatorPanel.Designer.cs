@@ -50,7 +50,8 @@ namespace RPGMMV_LiveSplit_GUI
             "Transition",
             "Switch",
             "Variable",
-            "Event"});
+            "Event",
+            "New Game"});
             this.cbxType.Location = new System.Drawing.Point(50, 6);
             this.cbxType.Name = "cbxType";
             this.cbxType.Size = new System.Drawing.Size(121, 24);

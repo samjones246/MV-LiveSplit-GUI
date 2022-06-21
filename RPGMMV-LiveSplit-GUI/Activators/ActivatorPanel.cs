@@ -36,7 +36,7 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void cbxType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SetType(((string)cbxType.SelectedItem).ToLower());
+            SetType(((string)cbxType.SelectedItem).ToLower().Replace(" ", ""));
         }
 
         private void ActivatorPanel_Load(object sender, EventArgs e)
@@ -45,18 +45,30 @@ namespace RPGMMV_LiveSplit_GUI
 
         public Activator GetData()
         {
-            return subPanel.GetData();
+            if (subPanel != null)
+            {
+                return subPanel.GetData();
+            }
+            else
+            {
+                Activator activator = new Activator();
+                activator.Type = ((string)cbxType.SelectedItem).ToLower().Replace(" ", "");
+                return activator;
+            }
         }
 
         public void SetData(Activator data)
         {
             SetType(data.Type);
-            subPanel.SetData(data);
+            if (subPanel != null)
+            {
+                subPanel.SetData(data);
+            }
         }
 
         private void SetType(string type)
         {
-            cbxType.SelectedItem = type.Substring(0, 1).ToUpper() + type.Substring(1);
+            cbxType.SelectedItem = type == "newgame" ? "New Game" : type.Substring(0, 1).ToUpper() + type.Substring(1);
             Controls.Remove(subPanel);
             switch (type)
             {
@@ -72,8 +84,14 @@ namespace RPGMMV_LiveSplit_GUI
                 case "variable":
                     subPanel = subPanel_variable;
                     break;
+                case "newgame":
+                    subPanel = null;
+                    break;
             }
-            Controls.Add(subPanel);
+            if (subPanel != null)
+            {
+                Controls.Add(subPanel);
+            }
         }
     }
 
