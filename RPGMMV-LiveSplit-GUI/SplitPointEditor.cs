@@ -69,6 +69,7 @@ namespace RPGMMV_LiveSplit_GUI
             panel.SetData(activator);
             activatorPanels.Add(panel);
             activatorsPanel.Controls.Add(panel);
+            activatorsPanel.Refresh();
         }
 
         private void btnOk_Click(object sender, EventArgs e)

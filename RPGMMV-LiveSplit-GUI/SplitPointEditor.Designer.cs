@@ -41,15 +41,16 @@ namespace RPGMMV_LiveSplit_GUI
             // 
             // activatorsPanel
             // 
-            this.activatorsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.activatorsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.activatorsPanel.AutoScroll = true;
+            this.activatorsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.activatorsPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.activatorsPanel.Location = new System.Drawing.Point(12, 72);
+            this.activatorsPanel.MinimumSize = new System.Drawing.Size(420, 150);
             this.activatorsPanel.Name = "activatorsPanel";
             this.activatorsPanel.Padding = new System.Windows.Forms.Padding(10);
-            this.activatorsPanel.Size = new System.Drawing.Size(420, 221);
+            this.activatorsPanel.Size = new System.Drawing.Size(420, 150);
             this.activatorsPanel.TabIndex = 0;
             // 
             // lblName
@@ -90,7 +91,7 @@ namespace RPGMMV_LiveSplit_GUI
             // btnOk
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOk.Location = new System.Drawing.Point(359, 299);
+            this.btnOk.Location = new System.Drawing.Point(357, 234);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 27);
             this.btnOk.TabIndex = 5;
@@ -101,7 +102,7 @@ namespace RPGMMV_LiveSplit_GUI
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(278, 299);
+            this.btnCancel.Location = new System.Drawing.Point(276, 234);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 27);
             this.btnCancel.TabIndex = 6;
@@ -111,8 +112,9 @@ namespace RPGMMV_LiveSplit_GUI
             // 
             // chkDefault
             // 
+            this.chkDefault.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkDefault.AutoSize = true;
-            this.chkDefault.Location = new System.Drawing.Point(359, 8);
+            this.chkDefault.Location = new System.Drawing.Point(357, 7);
             this.chkDefault.Name = "chkDefault";
             this.chkDefault.Size = new System.Drawing.Size(75, 21);
             this.chkDefault.TabIndex = 7;
@@ -124,8 +126,8 @@ namespace RPGMMV_LiveSplit_GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(446, 334);
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ClientSize = new System.Drawing.Size(442, 269);
             this.Controls.Add(this.chkDefault);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
