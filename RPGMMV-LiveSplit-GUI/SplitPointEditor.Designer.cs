@@ -37,6 +37,7 @@ namespace RPGMMV_LiveSplit_GUI
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.chkDefault = new System.Windows.Forms.CheckBox();
+            this.chkStart = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // activatorsPanel
@@ -122,12 +123,25 @@ namespace RPGMMV_LiveSplit_GUI
             this.chkDefault.UseVisualStyleBackColor = true;
             this.chkDefault.CheckedChanged += new System.EventHandler(this.chkDefault_CheckedChanged);
             // 
+            // chkStart
+            // 
+            this.chkStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkStart.AutoSize = true;
+            this.chkStart.Location = new System.Drawing.Point(357, 34);
+            this.chkStart.Name = "chkStart";
+            this.chkStart.Size = new System.Drawing.Size(60, 21);
+            this.chkStart.TabIndex = 8;
+            this.chkStart.Text = "Start";
+            this.chkStart.UseVisualStyleBackColor = true;
+            this.chkStart.CheckedChanged += new System.EventHandler(this.chkStart_CheckedChanged);
+            // 
             // SplitPointEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(442, 269);
+            this.Controls.Add(this.chkStart);
             this.Controls.Add(this.chkDefault);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
@@ -154,5 +168,6 @@ namespace RPGMMV_LiveSplit_GUI
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.CheckBox chkDefault;
+        private System.Windows.Forms.CheckBox chkStart;
     }
 }

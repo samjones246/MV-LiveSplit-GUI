@@ -29,6 +29,7 @@ namespace RPGMMV_LiveSplit_GUI
     {
         public string name { get; set; }
         public List<Activator> activators { get; set; }
+        public bool Start { get; set; }
 
         public override string ToString()
         {
@@ -38,6 +39,7 @@ namespace RPGMMV_LiveSplit_GUI
         public void CopyFrom(SplitPoint blueprint)
         {
             name = blueprint.name;
+            Start = blueprint.Start;
             activators = new List<Activator>();
             foreach (Activator bpActivator in blueprint.activators)
             {

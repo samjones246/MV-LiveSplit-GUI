@@ -35,6 +35,7 @@ namespace RPGMMV_LiveSplit_GUI
         {
             txtName.Text = SplitPoint.name;
             chkDefault.Checked = DefaultEnabled;
+            chkStart.Checked = SplitPoint.Start;
             activatorPanels = new List<ActivatorPanel>();
             foreach(Activator activator in SplitPoint.activators)
             {
@@ -111,6 +112,11 @@ namespace RPGMMV_LiveSplit_GUI
         private void btnAddActivator_Click(object sender, EventArgs e)
         {
             CreateActivatorPanel();
+        }
+
+        private void chkStart_CheckedChanged(object sender, EventArgs e)
+        {
+            SplitPoint.Start = chkStart.Checked;
         }
     }
 }
