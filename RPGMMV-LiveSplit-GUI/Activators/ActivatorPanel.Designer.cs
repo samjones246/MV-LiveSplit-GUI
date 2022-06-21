@@ -31,6 +31,7 @@ namespace RPGMMV_LiveSplit_GUI
         {
             this.lblType = new System.Windows.Forms.Label();
             this.cbxType = new System.Windows.Forms.ComboBox();
+            this.btnDelete = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblType
@@ -55,12 +56,22 @@ namespace RPGMMV_LiveSplit_GUI
             this.cbxType.Size = new System.Drawing.Size(121, 24);
             this.cbxType.TabIndex = 1;
             // 
+            // btnDelete
+            // 
+            this.btnDelete.Location = new System.Drawing.Point(304, 3);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(75, 23);
+            this.btnDelete.TabIndex = 2;
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.UseVisualStyleBackColor = true;
+            // 
             // ActivatorPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.cbxType);
             this.Controls.Add(this.lblType);
             this.Name = "ActivatorPanel";
@@ -75,5 +86,6 @@ namespace RPGMMV_LiveSplit_GUI
 
         private System.Windows.Forms.Label lblType;
         private System.Windows.Forms.ComboBox cbxType;
+        public System.Windows.Forms.Button btnDelete;
     }
 }

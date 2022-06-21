@@ -18,6 +18,7 @@ namespace RPGMMV_LiveSplit_GUI
         private TransitionActivator subPanel_transition;
         private SwitchActivator subPanel_switch;
         private VariableActivator subPanel_variable;
+
         public ActivatorPanel()
         {
             InitializeComponent();

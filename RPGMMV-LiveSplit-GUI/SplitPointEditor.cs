@@ -65,9 +65,27 @@ namespace RPGMMV_LiveSplit_GUI
             int offset = 5;
             int y = (offset + panel.Height) * activatorPanels.Count + offset;
             panel.Location = new Point(offset, y);
+            panel.btnDelete.Click += delegate (object sender, EventArgs e)
+            {
+                int i = activatorPanels.IndexOf(panel);
+                DeleteActivatorPanel(i);
+            };
             panel.SetData(activator);
             activatorPanels.Add(panel);
             activatorsPanel.Controls.Add(panel);
+            activatorsPanel.Refresh();
+        }
+
+        private void DeleteActivatorPanel(int index)
+        {
+            ActivatorPanel target = activatorPanels[index];
+            for (int i=index+1; i < activatorPanels.Count; i++)
+            {
+                ActivatorPanel panel = activatorPanels[i];
+                panel.Location = new Point(panel.Location.X, panel.Location.Y - (panel.Location.X + target.Height));
+            }
+            activatorPanels.RemoveAt(index);
+            activatorsPanel.Controls.RemoveAt(index);
             activatorsPanel.Refresh();
         }
 
