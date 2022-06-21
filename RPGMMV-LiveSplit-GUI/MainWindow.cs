@@ -189,7 +189,8 @@ namespace RPGMMV_LiveSplit_GUI
             JsonSerializerOptions options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             // Write autosplitter
             string outputText = JsonSerializer.Serialize(autosplitter, options);
