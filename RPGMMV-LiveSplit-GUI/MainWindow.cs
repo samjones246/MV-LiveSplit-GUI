@@ -309,7 +309,17 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void btnDeleteSplitPoint_Click(object sender, EventArgs e)
         {
-
+            SplitPoint target = (SplitPoint)lstSplitPoints.SelectedItem;
+            DialogResult result = MessageBox.Show("Are you sure you wish to delete this split point?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+            if (result == DialogResult.Yes)
+            {
+                autosplitter.splits.Remove(target);
+                autosplitter.defaults.Remove(target.name);
+                splitPrefs.Remove(target.name);
+                lstSplitPoints.Items.Remove(target);
+                lstSplitPoints.Refresh();
+                Changed = true;
+            }
         }
 
         private void btnOpenGame_Click(object sender, EventArgs e)
