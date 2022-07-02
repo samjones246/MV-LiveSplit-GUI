@@ -247,7 +247,7 @@ namespace RPGMMV_LiveSplit_GUI
 
         private void ShowError(Exception ex)
         {
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Console.WriteLine(ex.StackTrace);
         }
 

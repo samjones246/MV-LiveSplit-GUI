@@ -77,7 +77,6 @@ namespace RPGMMV_LiveSplit_GUI
             this.nudMap.Size = new System.Drawing.Size(88, 22);
             this.nudMap.TabIndex = 3;
             this.nudMap.Minimum = 0;
-            this.nudMap.Maximum = 999;
             // 
             // lblMap
             // 
@@ -96,6 +95,8 @@ namespace RPGMMV_LiveSplit_GUI
             this.nudFrom.Name = "nudFrom";
             this.nudFrom.Size = new System.Drawing.Size(88, 22);
             this.nudFrom.TabIndex = 5;
+            this.nudFrom.Minimum = 0;
+            this.nudFrom.Maximum = 999;
             // 
             // lblFrom
             // 
